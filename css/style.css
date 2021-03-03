@@ -2,28 +2,50 @@ body {
 	background: #c4c4c4;
 }
 main, header, footer {
-	min-width: 855px;
+	
 }
-header.container, main.container, footer.container {
-	width: 855px;
+header .container, main .container, footer .container {
+	
+	margin: 16px;
+}
+a{
+	font-family: Roboto;
+	font-size: 16px;
+	color: red;
+	text-decoration: none;
+}
+a:hover{
+	color: red;
+	text-decoration: underline;
 }
 .main-text-container{
+	float: left;
 	width: 570px;
+	margin: 16px;
 }
 .img-lamp{
 	float: right;
+	margin: 16px;
 }
 .contact{
 	float: left;
 	width: 570px;
+	margin: 16px;
+	font-family: Roboto;
+	font-size: 16px;
 }
 .sitemap{
 	float: right;
 	width: 285px;
+	margin: 16px;
+	font-family: Roboto;
+	font-size: 16px;
 }
 header h1{
 	float: left;
 	width: 570px;
+	font-family: Ubuntu;
+	font-size: 24px;
 }
 header nav {
 	float: right;
@@ -32,9 +54,11 @@ header nav {
 
 header {
 	background: white;
-	overflow: auto;
+	overflow: hidden;
 }
 main{
 	background: white;
-	overflow: auto;
+	overflow: hidden;
+	font-family: Roboto;
+	font-size: 16px;
 }

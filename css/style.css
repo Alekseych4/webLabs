@@ -6,12 +6,35 @@ main, header, footer {
 }
 header.container, main.container, footer.container {
 	width: 855px;
-	margin: auto;
+}
+.main-text-container{
+	width: 570px;
+}
+.img-lamp{
+	float: right;
+}
+.contact{
+	float: left;
+	width: 570px;
+}
+.sitemap{
+	float: right;
+	width: 285px;
+}
+header h1{
+	float: left;
+	width: 570px;
+}
+header nav {
+	float: right;
+	width: 285px;
 }
 
 header {
 	background: white;
+	overflow: auto;
 }
 main{
 	background: white;
+	overflow: auto;
 }

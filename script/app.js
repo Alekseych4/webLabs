@@ -33,7 +33,13 @@ var main = function () {
 				});
 				$("main .content").append($content);
 			} else if ($element.parent().is(":nth-child(3)")) {
-				console.log("Щелчок на третьей вкладке!");
+				$content = $("<div> " +
+								"<p>Введите название заметки:</p>" +
+								"<input type=\"text\">" + 
+								"<button>Сохранить</button>" +
+							"</div>");
+
+				$("main .content").append($content);
 			}
 
 

@@ -1,27 +1,15 @@
 var main = function () {
 	"use strict";
 
-	var makeTabActive = function (tabNumber) {
-
+	for (var tabNumber = 1; tabNumber < 4; tabNumber++) {
 		var tabSelector = ".tabs a:nth-child(" + tabNumber + ") span";
-		$(".tabs span").removeClass("active");
-		$(tabSelector).addClass("active");
-	};
-	
-	$(".tabs a:nth-child(1)").on("click", function () {
-		makeTabActive(1);
-		return false;
-	});
 
-	$(".tabs a:nth-child(2)").on("click", function () {
-		makeTabActive(2);
-		return false;
-	});
-
-	$(".tabs a:nth-child(3)").on("click", function () {
-		makeTabActive(3);
-		return false;
-	});
+		$(tabSelector).on("click", function () {
+			$(".tabs span").removeClass("active");
+			$(this).addClass("active");
+			return false;
+		});
+	}
 };
 
 

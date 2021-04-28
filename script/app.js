@@ -33,13 +33,19 @@ var main = function () {
 				});
 				$("main .content").append($content);
 			} else if ($element.parent().is(":nth-child(3)")) {
-				$content = $("<div> " +
+				$content = $("<div class=\"note\"> " +
 								"<p>Введите название заметки:</p>" +
 								"<input type=\"text\">" + 
 								"<button>Сохранить</button>" +
 							"</div>");
 
 				$("main .content").append($content);
+
+				$content.find("button").on("click", function(){
+					let input_tag = $content.find("input");
+					toDos.push(input_tag.val());
+					input_tag.val("")
+				});
 			}
 
 

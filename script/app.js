@@ -1,6 +1,8 @@
 var main = function () {
 	"use strict";
 
+	var comments = [];
+
 	var toDos = [
 		"Закончить писать эту книгу",
 		"Вывести Грейси на прогулку в парк",
@@ -46,6 +48,32 @@ var main = function () {
 					toDos.push(input_tag.val());
 					input_tag.val("")
 				});
+			} else if ($element.parent().is(":nth-child(4)")) {
+				$content = $(
+					"<div class=\"comment-input\"> " +
+						"<p>Введите комментарий:</p>" +
+						"<input type=\"text\">" +
+						"<button>Сохранить</button>" +
+					"</div>"
+					);
+
+				var $comments = $(
+					"<div class=\"comments\"></div>"
+					);
+
+				$("main .content").append($content);
+				$("main .content").append($comments);
+
+				$content.find("button").on("click", function (event) {
+					let $input_tag = $content.find("input");
+					let $new_comment = $("<p>");
+
+					$new_comment.text($input_tag.val());
+					$input_tag.val("");
+
+					$comments.append($new_comment);
+				});
+
 			}
 
 

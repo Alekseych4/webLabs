@@ -58,7 +58,8 @@ var main = function () {
 					);
 
 				var $comments = $(
-					"<div class=\"comments\"></div>"
+					"<div class=\"comments\">" +
+						"</div>"
 					);
 
 				$("main .content").append($content);
@@ -66,12 +67,35 @@ var main = function () {
 
 				$content.find("button").on("click", function (event) {
 					let $input_tag = $content.find("input");
-					let $new_comment = $("<p>");
+					let date = new Date();
 
-					$new_comment.text($input_tag.val());
+					let color = "gainsboro";
+
+					if (date.getSeconds() % 2 == 0) {
+						color = "lavender";
+					} else if(date.getSeconds() % 3 == 0)
+						color = "red";
+
+					let $new_comment = $("<div class=\"comment\" style=\"margin: 5px; border-radius: 6px; " +
+						"padding: 5px; background: " + color + ";\">" + 
+						"<p class=\"text\" style=\"display: inline-block; width:60%;\"></p>" +
+						"<p class=\"time\" style=\"display: inline-block;width:40%;\"></p>" +
+						"</div>"
+						);
+
+					let $text = $new_comment.find("p.text");
+					let $time = $new_comment.find("p.time");
+
+
+					$text.text($input_tag.val());
 					$input_tag.val("");
 
+					$time.text(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "  " + date.getDate() + "." 
+						+  date.getMonth() + "." + date.getFullYear());
+
+					$new_comment.hide();
 					$comments.append($new_comment);
+					$new_comment.fadeIn();
 				});
 
 			}

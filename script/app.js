@@ -49,6 +49,7 @@ var main = function () {
 					input_tag.val("")
 				});
 			} else if ($element.parent().is(":nth-child(4)")) {
+
 				$content = $(
 					"<div class=\"comment-input\"> " +
 						"<p>Введите комментарий:</p>" +
@@ -65,7 +66,8 @@ var main = function () {
 				$("main .content").append($content);
 				$("main .content").append($comments);
 
-				$content.find("button").on("click", function (event) {
+				var commentAdding = function () {
+					
 					let $input_tag = $content.find("input");
 					let date = new Date();
 
@@ -86,7 +88,9 @@ var main = function () {
 					let $text = $new_comment.find("p.text");
 					let $time = $new_comment.find("p.time");
 
-
+					if ($input_tag.val() == "") 
+						return;
+					
 					$text.text($input_tag.val());
 					$input_tag.val("");
 
@@ -96,6 +100,14 @@ var main = function () {
 					$new_comment.hide();
 					$comments.append($new_comment);
 					$new_comment.fadeIn();
+				}
+
+				$content.find("button").on("click", commentAdding);
+				$content.find("input").on("keypress", function(key) {
+					console.log(key.which);
+    				if(key.which == 13) {
+       	 				commentAdding();
+					}
 				});
 
 			}
@@ -106,6 +118,5 @@ var main = function () {
 
 	$(".tabs a:first-child span").trigger("click");
 };
-
 
 $(document).ready(main);

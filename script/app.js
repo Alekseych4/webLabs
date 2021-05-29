@@ -1,16 +1,38 @@
-var main = function () {
+var main = function (toDoObjects) {
 	"use strict";
 
 	var comments = [];
 
-	var toDos = [
-		"Закончить писать эту книгу",
-		"Вывести Грейси на прогулку в парк",
-		"Ответить на электронные письма",
-		"Подготовиться к лекции в понедельник",
-		"Обновить несколько новых задач",
-		"Купить продукты"
-	];
+
+	var toDos = toDoObjects.map(function (toDo) {
+		return toDo.description;
+	});
+
+	var organizeByTag = function (argument) {
+		let tags = [];
+
+		toDoObjects.forEach(el => {
+			el.tags.forEach(tag => {
+				if (!tags.includes(tag)) {
+					tags.push(tag);
+				}
+			});
+		});
+
+		var tagObj = tags.map(tag => {
+			var toDosWithTag = [];
+			toDoObjects.forEach(item => {
+				if (item.tags.includes(tag)) {
+					toDosWithTag.push(item.description);
+				}
+			});
+
+			return {"name": tag, "toDos": toDosWithTag};
+		});
+
+		return tagObj;
+	}
+
 
 	$(".tabs a span").toArray().forEach(function (element) {
 
@@ -35,6 +57,21 @@ var main = function () {
 				});
 				$("main .content").append($content);
 			} else if ($element.parent().is(":nth-child(3)")) {
+
+				todosByTag.forEach(function (tag) {
+					var $tagName = $("<h3>").text(tag.name), $content = $("<ul>");
+
+					tag.toDos.forEach(function (description) {
+						var $li = $("<li>").text(description);
+						$content.append($li);
+					});
+
+					$("main .content").append($tagName);
+					$("main .content").append($content);
+				});
+
+
+			} else if ($element.parent().is(":nth-child(4)")) {
 				$content = $("<div class=\"note\"> " +
 								"<p>Введите название заметки:</p>" +
 								"<input type=\"text\">" + 
@@ -48,7 +85,7 @@ var main = function () {
 					toDos.push(input_tag.val());
 					input_tag.val("")
 				});
-			} else if ($element.parent().is(":nth-child(4)")) {
+			} else if ($element.parent().is(":nth-child(5)")) {
 
 				$content = $(
 					"<div class=\"comment-input\"> " +
@@ -119,4 +156,8 @@ var main = function () {
 	$(".tabs a:first-child span").trigger("click");
 };
 
-$(document).ready(main);
+$(document).ready(function () {
+	$.getJSON("../res/todos.json", function (toDoObjects) {
+		main(toDoObjects);
+	});
+});

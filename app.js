@@ -8,7 +8,7 @@ var main = function (toDoObjects) {
 		return toDo.description;
 	});
 
-	var todosByTag = function () {
+	var todosByTag = function (argument) {
 		let tags = [];
 
 		toDoObjects.forEach(el => {
@@ -46,25 +46,23 @@ var main = function (toDoObjects) {
 
 			if ($element.parent().is(":nth-child(1)")) {
 				$content = $("<ul>");
-				for (var i = toDos.length; i >= 0; i--) {
+				for (var i = toDos.length - 1; i >= 0; i--) {
 					$content.append($("<li>").text(toDos[i]));
 				}
 				$("main .content").append($content);
-				
 			} else if ($element.parent().is(":nth-child(2)")) {
 				$content = $("<ul>");
 				toDos.forEach(function (todo) {
 					$content.append($("<li>").text(todo));
 				});
 				$("main .content").append($content);
-
 			} else if ($element.parent().is(":nth-child(3)")) {
 
-				todosByTag.forEach(function (tag) {
-					var $tagName = $("<h2>").text(tag.name), $content = $("<ul>");
+				todosByTag().forEach(function (tag) {
+					var $tagName = $("<h3 class=\"tag-header\">").text(tag.name), $content = $("<ul>");
 
 					tag.toDos.forEach(function (description) {
-						var $li = $("<li>").text(description);
+						var $li = $("<li class=\"tag-list\">").text(description);
 						$content.append($li);
 					});
 
@@ -74,19 +72,24 @@ var main = function (toDoObjects) {
 
 
 			} else if ($element.parent().is(":nth-child(4)")) {
-				$content = $("<div class=\"note\"> " +
-								"<p>Введите название заметки:</p>" +
-								"<input type=\"text\">" + 
-								"<button>Сохранить</button>" +
-							"</div>");
-
-				$("main .content").append($content);
-
-				$content.find("button").on("click", function(){
-					let input_tag = $content.find("input");
-					toDos.push(input_tag.val());
-					input_tag.val("")
+				var $input = $("<input>").addClass("description"), 
+					$inputLabel = $("<p>").text("Новая задача: "),
+					$tagInput = $("<input>").addClass("tags"),
+					$tagLabel = $("<p>").text("Тэги: "),
+					$button = $("<button>").text("+");
+				$button.on("click", function () {
+					var description = $input.val(),
+					// разделение в соответствии с запятыми
+					tags = $tagInput.val().split(","); 
+					toDoObjects.push({"description":description, "tags":tags}); 
+					// обновление toDos
+					toDos = toDoObjects.map(function (toDo) {
+						return toDo.description;
+					});
+					$input.val("");
+					$tagInput.val("");
 				});
+				$("main .content").append($inputLabel).append($input).append($tagLabel).append($tagInput).append($button); 
 			} else if ($element.parent().is(":nth-child(5)")) {
 
 				$content = $(
@@ -149,7 +152,11 @@ var main = function (toDoObjects) {
 					}
 				});
 
-			}
+			} //else if ($element.parent().is(":nth-child(6)")) { 
+			// 	var js = document.createElement('script');
+			// 	js.src = "flickr_task.js";
+			// 	document.body.appendChild(js);
+			// }
 
 
 		});
@@ -159,7 +166,7 @@ var main = function (toDoObjects) {
 };
 
 $(document).ready(function () {
-	$.getJSON("../res/todos.json", function (toDoObjects) {
+	$.getJSON("todos.json", function (toDoObjects) {
 		main(toDoObjects);
 	});
 });

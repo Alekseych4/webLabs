@@ -77,19 +77,37 @@ var main = function (toDoObjects) {
 					$tagInput = $("<input>").addClass("tags"),
 					$tagLabel = $("<p>").text("Тэги: "),
 					$button = $("<button>").text("+");
-				$button.on("click", function () {
+					$("main .content").append($inputLabel).append($input).append($tagLabel).append($tagInput).append($button);
+
+				function addNote () {
 					var description = $input.val(),
-					// разделение в соответствии с запятыми
-					tags = $tagInput.val().split(","); 
-					toDoObjects.push({"description":description, "tags":tags}); 
-					// обновление toDos
-					toDos = toDoObjects.map(function (toDo) {
-						return toDo.description;
-					});
-					$input.val("");
-					$tagInput.val("");
-				});
-				$("main .content").append($inputLabel).append($input).append($tagLabel).append($tagInput).append($button); 
+                        tags = $tagInput.val().split(","),
+                        // создаем новый элемент списка задач
+                        newToDo = {"description":description, "tags":tags};
+                    $.post("todos", newToDo, function(result) {
+                        console.log(result);
+                        // нужно отправить новый объект на клиент
+                        // после получения ответа сервера
+                        toDoObjects.push(newToDo);
+                        // обновляем toDos
+                        toDos = toDoObjects.map(function (toDo) {
+                            return toDo.description;
+                        });
+                        $input.val("");
+                        $tagInput.val("");
+                        // $(".tabs a:first-child span").trigger("click");
+                    });
+				}
+
+				$button.on("click", function() {
+                    addNote();
+                });
+                $('.tags').on('keydown',function(e){
+                    if (e.which === 13) {
+                        addNote();
+                    }
+                });
+				 
 			} else if ($element.parent().is(":nth-child(5)")) {
 
 				$content = $(
@@ -166,7 +184,7 @@ var main = function (toDoObjects) {
 };
 
 $(document).ready(function () {
-	$.getJSON("todos.json", function (toDoObjects) {
+	$.getJSON("todos.json", {}, function (toDoObjects) {
 		main(toDoObjects);
 	});
 });

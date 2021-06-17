@@ -1,3 +1,33 @@
+var organizeByTags = function (toDoObjects) { 
+	// создание пустого массива для тегов
+	var tags = [];
+	// перебираем все задачи toDos 
+	toDoObjects.forEach(function (toDo) {
+		// перебираем все теги для каждой задачи 
+		toDo.tags.forEach(function (tag) {
+			// убеждаемся, что этого тега еще нет в массиве
+			if (tags.indexOf(tag) === -1) { 
+				tags.push(tag);
+			}
+		});
+	}); 
+	var tagObjects = tags.map(function (tag) {
+		// здесь мы находим все задачи,
+		// содержащие этот тег
+		var toDosWithTag = []; 
+		toDoObjects.forEach(function (toDo) {
+			// проверка, что результат
+			// indexOf is *не* равен -1
+			if (toDo.tags.indexOf(tag) !== -1) { 
+				toDosWithTag.push(toDo.description);
+			}
+		});
+		// мы связываем каждый тег с объектом, который содержит название тега и массив
+		return { "name": tag, "toDos": toDosWithTag };
+	});
+	return tagObjects;
+};
+
 var editTask = function (todo, callback) {
 	var $todoListItem = $("<li>").text(todo.description),
 		$todoEditLink = $("<a>").attr("href", "todos/" + todo._id),
@@ -97,10 +127,10 @@ var main = function (toDoObjects) {
 				var organizedByTag = organizeByTags(toDoObjects),
 					$content;
 				organizedByTag.forEach(function (tag) {
-					var $tagName = $("<h3>").text(tag.name);
+					var $tagName = $("<h3 class=\"tag-header\">").text(tag.name);
 						$content = $("<ul>");
 					tag.toDos.forEach(function (description) {
-						var $li = $("<li>").text(description);
+						var $li = $("<li class=\"tag-list\">").text(description);
 						$content.append($li);
 					});
 					$("main .content").append($tagName);

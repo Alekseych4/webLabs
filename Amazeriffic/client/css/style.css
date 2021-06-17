@@ -100,6 +100,27 @@ ul{
 	padding:10px;
 }
 
+.linkEdit {
+	display: inline-block;
+	float: right;
+	padding-left: 15px; 
+}
+.linkEdit:hover {
+	background: green;
+	color: white;
+	text-decoration: none;
+} 
+.linkRemove {
+	display: inline-block;
+	float: right;
+	padding-left: 15px; 
+}
+.linkRemove:hover {
+	background: red;
+	color: white;
+	text-decoration: none;
+} 
+
 /*.tabs a span {
 	display: inline-block; 
 	border-radius: 5px 5px 0 0; 

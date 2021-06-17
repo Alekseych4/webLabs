@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Alekseych4/webLabs#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^5.12.14"
   }
 }

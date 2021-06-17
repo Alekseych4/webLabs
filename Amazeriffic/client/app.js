@@ -1,182 +1,183 @@
+var editTask = function (todo, callback) {
+	var $todoListItem = $("<li>").text(todo.description),
+		$todoEditLink = $("<a>").attr("href", "todos/" + todo._id),
+		$todoRemoveLink = $("<a>").attr("href", "todos/" + todo._id);
+
+	$todoEditLink.addClass("linkEdit");
+	$todoRemoveLink.addClass("linkRemove");
+
+	$todoRemoveLink.text("Удалить");
+	$todoRemoveLink.on("click", function () {
+		$.ajax({
+			url: "/todos/" + todo._id,
+			type: "DELETE"
+		}).done(function (responde) {
+			callback();
+		}).fail(function (err) {
+			console.log("error on delete 'todo'!");
+		});
+		return false;
+	});
+	$todoListItem.append($todoRemoveLink);
+
+	$todoEditLink.text("Редактировать");
+	$todoEditLink.on("click", function() {
+		var newDescription = prompt("Введите новое наименование для задачи", todo.description);
+		if (newDescription !== null && newDescription.trim() !== "") {
+			$.ajax({
+				"url": "/todos/" + todo._id,
+				"type": "PUT",
+				"data": { "description": newDescription },
+			}).done(function (responde) {
+				callback();
+			}).fail(function (err) {
+				console.log("Произошла ошибка: " + err);
+			});
+		}
+		return false;
+	});
+	$todoListItem.append($todoEditLink);
+
+	return $todoListItem;
+}
+
 var main = function (toDoObjects) {
 	"use strict";
 
-	var comments = [];
-
-
-	var toDos = toDoObjects.map(function (toDo) {
-		return toDo.description;
+	// создание пустого массива с вкладками
+	var tabs = [];
+	// добавляем вкладку Новые
+	tabs.push({
+		"name": "Новые",
+		// создаем функцию content
+		// так, что она принимает обратный вызов
+		"content": function(callback) {
+			$.getJSON("todos.json", function (toDoObjects) {
+				var $content = $("<ul>");
+				for (var i = toDoObjects.length-1; i>=0; i--) {
+					var $todoListItem = editTask(toDoObjects[i], function() {
+						$(".tabs a:first-child span").trigger("click");
+					});
+					$content.append($todoListItem);
+				}
+				callback(null, $content);
+			}).fail(function (jqXHR, textStatus, error) {
+				callback(error, null);
+			});
+		}
 	});
 
-	var todosByTag = function (argument) {
-		let tags = [];
-
-		toDoObjects.forEach(el => {
-			el.tags.forEach(tag => {
-				if (!tags.includes(tag)) {
-					tags.push(tag);
-				}
-			});
-		});
-
-		var tagObj = tags.map(tag => {
-			var toDosWithTag = [];
-			toDoObjects.forEach(item => {
-				if (item.tags.includes(tag)) {
-					toDosWithTag.push(item.description);
-				}
-			});
-
-			return {"name": tag, "toDos": toDosWithTag};
-		});
-
-		return tagObj;
-	}
-
-
-	$(".tabs a span").toArray().forEach(function (element) {
-
-		$(element).on("click", function () {
-
-			var $element = $(element), 
-			$content;
-			$(".tabs a span").removeClass("active");
-			$element.addClass("active");
-			$("main .content").empty();
-
-			if ($element.parent().is(":nth-child(1)")) {
+	// добавляем вкладку Старые
+	tabs.push({
+		"name": "Старые",
+		"content": function(callback) {
+			$.getJSON("todos.json", function (toDoObjects) {
+				var $content,
+					i;
 				$content = $("<ul>");
-				for (var i = toDos.length - 1; i >= 0; i--) {
-					$content.append($("<li>").text(toDos[i]));
+				for (i = 0; i < toDoObjects.length; i++) {
+					var $todoListItem = editTask(toDoObjects[i], function() {
+						$(".tabs a:nth-child(2) span").trigger("click");
+					});
+					$content.append($todoListItem);
 				}
-				$("main .content").append($content);
-			} else if ($element.parent().is(":nth-child(2)")) {
-				$content = $("<ul>");
-				toDos.forEach(function (todo) {
-					$content.append($("<li>").text(todo));
-				});
-				$("main .content").append($content);
-			} else if ($element.parent().is(":nth-child(3)")) {
+				callback(null, $content);
+			}).fail(function(jqXHR, textStatus, error) {
+				callback(error, null);
+			});
+		}
+	});
 
-				todosByTag().forEach(function (tag) {
-					var $tagName = $("<h3 class=\"tag-header\">").text(tag.name), $content = $("<ul>");
-
+	// добавляем вкладку Теги
+	tabs.push({
+		"name": "Теги",
+		"content":function (callback) {
+			$.get("todos.json", function (toDoObjects) {	
+				// создание $content для Теги 
+				var organizedByTag = organizeByTags(toDoObjects),
+					$content;
+				organizedByTag.forEach(function (tag) {
+					var $tagName = $("<h3>").text(tag.name);
+						$content = $("<ul>");
 					tag.toDos.forEach(function (description) {
-						var $li = $("<li class=\"tag-list\">").text(description);
+						var $li = $("<li>").text(description);
 						$content.append($li);
 					});
-
 					$("main .content").append($tagName);
 					$("main .content").append($content);
 				});
+				callback(null,$content);
+			}).fail(function (jqXHR, textStatus, error) {
+				// в этом случае мы отправляем ошибку вместе с null для $content
+				callback(error, null);
+			});
+		}
+	});
 
-
-			} else if ($element.parent().is(":nth-child(4)")) {
-				var $input = $("<input>").addClass("description"), 
-					$inputLabel = $("<p>").text("Новая задача: "),
+	// создаем вкладку Добавить
+	tabs.push({
+		"name": "Добавить",
+		"content":function () {
+			$.get("todos.json", function (toDoObjects) {	
+				// создание $content для Добавить 
+				var $textInput = $("<h3>").text("Введите новую задачу: "),
+					$input = $("<input>").addClass("description"), 
+					$textTag = $("<h3>").text("Тэги: "),
 					$tagInput = $("<input>").addClass("tags"),
-					$tagLabel = $("<p>").text("Тэги: "),
-					$button = $("<button>").text("+");
-					$("main .content").append($inputLabel).append($input).append($tagLabel).append($tagInput).append($button);
+					$button = $("<button>").text("Добавить"),
+					$content1 = $("<ul>"), $content2 = $("<ul>");
 
-				function addNote () {
+				$content1.append($input);
+				$content2.append($tagInput);
+
+				$("main .content").append($textInput);
+				$("main .content").append($content1);
+				$("main .content").append($textTag);
+				$("main .content").append($content2);
+				$("main .content").append($button); 
+				
+				function btnfunc() {
 					var description = $input.val(),
-                        tags = $tagInput.val().split(","),
-                        // создаем новый элемент списка задач
-                        newToDo = {"description":description, "tags":tags};
-                    $.post("todos", newToDo, function(result) {
-                        console.log(result);
-                        // нужно отправить новый объект на клиент
-                        // после получения ответа сервера
-                        toDoObjects.push(newToDo);
-                        // обновляем toDos
-                        toDos = toDoObjects.map(function (toDo) {
-                            return toDo.description;
-                        });
-                        $input.val("");
-                        $tagInput.val("");
-                        // $(".tabs a:first-child span").trigger("click");
-                    });
+						tags = $tagInput.val().split(","),
+						// создаем новый элемент списка задач
+						newToDo = {"description":description, "tags":tags};
+					$.post("todos", newToDo, function(result) {
+						$input.val("");
+						$tagInput.val("");
+						$(".tabs a:first-child span").trigger("click");
+					});
 				}
-
 				$button.on("click", function() {
-                    addNote();
-                });
-                $('.tags').on('keydown',function(e){
-                    if (e.which === 13) {
-                        addNote();
-                    }
-                });
-				 
-			} else if ($element.parent().is(":nth-child(5)")) {
-
-				$content = $(
-					"<div class=\"comment-input\"> " +
-						"<p>Введите комментарий:</p>" +
-						"<input type=\"text\">" +
-						"<button>Сохранить</button>" +
-					"</div>"
-					);
-
-				var $comments = $(
-					"<div class=\"comments\">" +
-						"</div>"
-					);
-
-				$("main .content").append($content);
-				$("main .content").append($comments);
-
-				var commentAdding = function () {
-					
-					let $input_tag = $content.find("input");
-					let date = new Date();
-
-					let color = "gainsboro";
-
-					if (date.getSeconds() % 2 == 0) {
-						color = "lavender";
-					} else if(date.getSeconds() % 3 == 0)
-						color = "red";
-
-					let $new_comment = $("<div class=\"comment\" style=\"margin: 5px; border-radius: 6px; " +
-						"padding: 5px; background: " + color + ";\">" + 
-						"<p class=\"text\" style=\"display: inline-block; width:60%;\"></p>" +
-						"<p class=\"time\" style=\"display: inline-block;width:40%;\"></p>" +
-						"</div>"
-						);
-
-					let $text = $new_comment.find("p.text");
-					let $time = $new_comment.find("p.time");
-
-					if ($input_tag.val() == "") 
-						return;
-					
-					$text.text($input_tag.val());
-					$input_tag.val("");
-
-					$time.text(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "  " + date.getDate() + "." 
-						+  date.getMonth() + "." + date.getFullYear());
-
-					$new_comment.hide();
-					$comments.append($new_comment);
-					$new_comment.fadeIn();
-				}
-
-				$content.find("button").on("click", commentAdding);
-				$content.find("input").on("keypress", function(key) {
-					console.log(key.which);
-    				if(key.which == 13) {
-       	 				commentAdding();
+					btnfunc();
+				});
+				$('.tags').on('keydown',function(e){
+					if (e.which === 13) {
+						btnfunc();
 					}
 				});
+			});
+		}
+	});
 
-			} //else if ($element.parent().is(":nth-child(6)")) { 
-			// 	var js = document.createElement('script');
-			// 	js.src = "flickr_task.js";
-			// 	document.body.appendChild(js);
-			// }
+	tabs.forEach(function (tab) {
+		var $aElement = $("<a>").attr("href",""),
+			$spanElement = $("<span>").text(tab.name);
+		$aElement.append($spanElement);
+		$("main .tabs").append($aElement);
 
-
+		$spanElement.on("click", function () {
+			var $content;
+			$(".tabs a span").removeClass("active");
+			$spanElement.addClass("active");
+			$("main .content").empty();
+			tab.content(function (err, $content) {
+				if (err !== null) {
+					alert ("Возникла проблема при обработке запроса: " + err);
+				} else {
+					$("main .content").append($content);
+				}
+			});
+			return false;
 		});
 	});
 

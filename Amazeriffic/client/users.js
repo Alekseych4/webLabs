@@ -72,7 +72,7 @@ var main = function (UsersObjects) {
 		if ($input.val() !== "") {
 			if ($input.val() !== null && $input.val().trim() !== "") {
 				var username = $input.val();
-				if (confirm("Вы уверены, что хотете удалить пользователя " + username + "?")) {
+				if (confirm("Вы уверены, что хотите удалить пользователя " + username + "?")) {
 					$.ajax({
 						'url': '/users/'+username,
 						'type': 'DELETE',
